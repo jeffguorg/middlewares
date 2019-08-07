@@ -15,8 +15,8 @@ func RequireParametersInQuery(keys ...string) func(http.Handler) http.Handler {
 					w.WriteHeader(http.StatusBadRequest)
 					return
 				}
-				next.ServeHTTP(w, r)
 			}
+			next.ServeHTTP(w, r)
 		})
 	}
 }
@@ -43,8 +43,9 @@ func RequireParametersInJSON(keys ...string) func(http.Handler) http.Handler {
 					w.WriteHeader(http.StatusBadRequest)
 					return
 				}
-				next.ServeHTTP(w, r)
+
 			}
+			next.ServeHTTP(w, r)
 		})
 	}
 }
