@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -26,6 +27,7 @@ func RequireParametersInJSON(keys ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			var values map[string]interface{}
+			var ctx = r.Context()
 
 			buf, err := ioutil.ReadAll(r.Body)
 			if err != nil {
@@ -39,13 +41,14 @@ func RequireParametersInJSON(keys ...string) func(http.Handler) http.Handler {
 			}
 
 			for _, key := range keys {
-				if _, ok := values[key]; !ok {
+				if val, ok := values[key]; !ok {
 					w.WriteHeader(http.StatusBadRequest)
 					return
+				} else {
+					ctx = context.WithValue(ctx, key, val)
 				}
-
 			}
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
 }
