@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"fmt"
 	"github.com/getsentry/sentry-go"
 	"github.com/go-errors/errors"
 	"net/http"
@@ -26,14 +25,7 @@ func SentryLogging(dsn, environment, release string) func(handler http.Handler) 
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			defer func() {
 				if rval := recover(); rval != nil {
-					switch rval.(type) {
-					case errors.Error:
-					case error:
-						sentry.CaptureException(rval.(error))
-						break
-					default:
-						sentry.CaptureMessage(fmt.Sprint(rval))
-					}
+					sentry.CaptureException(errors.New(rval))
 				}
 			}()
 			next.ServeHTTP(w, r)
