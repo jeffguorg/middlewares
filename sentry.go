@@ -8,14 +8,13 @@ import (
 	"os"
 )
 
-func SentryLogging(dsn, environment, release string, debug bool) func(handler http.Handler) http.Handler {
+func SentryLogging(dsn, environment, release string) func(handler http.Handler) http.Handler {
 	hostname, err := os.Hostname()
 	if err != nil {
 		panic(err)
 	}
 	client, err := sentry.NewClient(sentry.ClientOptions{
 		Dsn:         dsn,
-		Debug:       debug,
 		ServerName:  hostname,
 		Release:     release,
 		Environment: environment,
