@@ -11,13 +11,15 @@ import (
 func RequireParametersInQuery(keys ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
 			for _, key := range keys {
 				if len(r.URL.Query().Get(key)) == 0 {
 					w.WriteHeader(http.StatusBadRequest)
 					return
 				}
+				ctx = context.WithValue(ctx, key, r.URL.Query().Get(key))
 			}
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
 }
