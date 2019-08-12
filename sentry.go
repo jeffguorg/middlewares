@@ -13,7 +13,7 @@ func SentryLogging(dsn, environment, release string) func(handler http.Handler) 
 	if err != nil {
 		panic(err)
 	}
-	client, err := sentry.NewClient(sentry.ClientOptions{
+	err = sentry.Init(sentry.ClientOptions{
 		Dsn:         dsn,
 		ServerName:  hostname,
 		Release:     release,
@@ -29,10 +29,10 @@ func SentryLogging(dsn, environment, release string) func(handler http.Handler) 
 					switch rval.(type) {
 					case errors.Error:
 					case error:
-						client.CaptureException(rval.(error), nil, nil)
+						sentry.CaptureException(rval.(error))
 						break
 					default:
-						client.CaptureMessage(fmt.Sprint(rval), nil, nil)
+						sentry.CaptureMessage(fmt.Sprint(rval))
 					}
 				}
 			}()
