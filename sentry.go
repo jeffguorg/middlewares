@@ -7,6 +7,15 @@ import (
 	"os"
 )
 
+type Error struct {
+	Err            error
+	HttpStatusCode int
+}
+
+func (err Error) Error() string {
+	return err.Err.Error()
+}
+
 func SentryLogging(dsn, environment, release string) func(handler http.Handler) http.Handler {
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -26,7 +35,14 @@ func SentryLogging(dsn, environment, release string) func(handler http.Handler) 
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			defer func() {
 				if rval := recover(); rval != nil {
-					hub.CaptureException(errors.New(rval))
+					switch rval.(type) {
+					case Error:
+						w.WriteHeader(rval.(Error).HttpStatusCode)
+						hub.CaptureException(errors.New(rval.(Error).Err))
+						break
+					default:
+						hub.CaptureException(errors.New(rval))
+					}
 				}
 			}()
 			next.ServeHTTP(w, r)
