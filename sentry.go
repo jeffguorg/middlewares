@@ -37,8 +37,12 @@ func SentryLogging(dsn, environment, release string) func(handler http.Handler) 
 				if rval := recover(); rval != nil {
 					switch rval.(type) {
 					case Error:
-						w.WriteHeader(rval.(Error).HttpStatusCode)
-						hub.CaptureException(errors.New(rval.(Error).Err))
+						if statusCode := rval.(Error).HttpStatusCode; statusCode != 0 {
+							w.WriteHeader(statusCode)
+						}
+						if err := errors.New(rval.(Error).Err); err != nil {
+							hub.CaptureException(errors.New(rval.(Error).Err))
+						}
 						break
 					default:
 						hub.CaptureException(errors.New(rval))
