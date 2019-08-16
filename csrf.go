@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func SetSecretCookie(w http.ResponseWriter, cookiename string, content, key []byte) error {
+func SetSecretCookie(w http.ResponseWriter, cookiename string, content, key []byte) {
 	hasher := hmac.New(sha256.New, key)
 	hasher.Write([]byte(content))
 	digest := hasher.Sum(nil)
@@ -17,7 +17,6 @@ func SetSecretCookie(w http.ResponseWriter, cookiename string, content, key []by
 		Value:  sign,
 		Secure: true,
 	})
-	return nil
 }
 
 // RequireParametersInQuery checks for parameters existence in query string
