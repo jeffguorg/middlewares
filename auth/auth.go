@@ -96,5 +96,6 @@ func SetUser(w http.ResponseWriter, r *http.Request, user map[string]interface{}
 	http.SetCookie(w, &http.Cookie{
 		Name:  "user",
 		Value: str,
+		Path:  "/",
 	})
 }
