@@ -3,6 +3,7 @@ module github.com/jeffguorg/middlewares
 go 1.12
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/getsentry/sentry-go v0.2.1
 	github.com/go-chi/chi v4.0.2+incompatible
 	github.com/go-errors/errors v1.0.1
