@@ -1,4 +1,4 @@
-package middlewares
+package auth
 
 import (
 	"context"
@@ -36,6 +36,16 @@ func CheckUserCookie(key interface{}, method jwt.SigningMethod) func(next http.H
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
+}
+
+func MustUser(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if GetUser(r) == nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 func GetUser(r *http.Request) map[string]interface{} {
