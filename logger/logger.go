@@ -33,6 +33,10 @@ type LogEntry struct {
 }
 
 func (l LogEntry) Write(status, bytes int, elapsed time.Duration) {
+	l.flogger = l.flogger.WithFields(logrus.Fields{
+		"status":  status,
+		"written": bytes,
+	})
 	switch status / 100 {
 	case 2:
 		fallthrough
