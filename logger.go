@@ -12,10 +12,10 @@ var (
 )
 
 func GetLogger(logger *logrus.Logger) func(next http.Handler) http.Handler {
-	return middleware.RequestLogger(NewLogrusFormattter(logger))
+	return middleware.RequestLogger(NewLogrusFormatter(logger))
 }
 
-func NewLogrusFormattter(logger *logrus.Logger) *LogrusFormatter {
+func NewLogrusFormatter(logger *logrus.Logger) *LogrusFormatter {
 	if logger == nil {
 		logger = logrus.New()
 	}
