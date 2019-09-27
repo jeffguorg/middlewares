@@ -49,7 +49,7 @@ func SecureCookie(key []byte, queryname, cookiename string) func(http.Handler) h
 	}
 }
 
-func CheckSecureCookie(csrf, orig string, key []byte) error {
+func CheckSecureCookie(csrf string, orig, key []byte) error {
 	sign := digest(key, []byte(orig))
 	if sign == csrf {
 		return nil

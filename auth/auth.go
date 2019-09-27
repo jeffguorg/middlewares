@@ -13,7 +13,7 @@ func CheckUserCookie(key interface{}, method jwt.SigningMethod) func(next http.H
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := context.WithValue(r.Context(), "user.key", key)
-			ctx = context.WithValue(r.Context(), "user.method", method)
+			ctx = context.WithValue(ctx, "user.method", method)
 
 			userCookie, err := r.Cookie("u")
 			if err != nil {
