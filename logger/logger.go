@@ -1,4 +1,4 @@
-package middlewares
+package logger
 
 import (
 	"github.com/go-chi/chi/middleware"
@@ -30,11 +30,19 @@ type LogrusFormatter struct {
 
 type LogEntry struct {
 	flogger logrus.FieldLogger
-	start   time.Time
 }
 
 func (l LogEntry) Write(status, bytes int, elapsed time.Duration) {
-	l.flogger.Info("request completed in ", time.Now().Sub(l.start).String())
+	switch status / 100 {
+	case 2:
+		fallthrough
+	case 3:
+		l.flogger.Info("request completed in ", elapsed)
+	case 4:
+		l.flogger.Warn("request completed in ", elapsed)
+	case 5:
+		l.flogger.Error("request completed in ", elapsed)
+	}
 }
 
 func (l LogEntry) Panic(v interface{}, stack []byte) {
@@ -65,6 +73,5 @@ func (l LogrusFormatter) NewLogEntry(r *http.Request) middleware.LogEntry {
 		flogger: logrus.NewEntry(l.logger).WithFields(logrus.Fields{
 			"URI": url,
 		}),
-		start: time.Now(),
 	}
 }
