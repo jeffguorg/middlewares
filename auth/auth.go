@@ -15,7 +15,7 @@ func CheckUserCookie(key interface{}, method jwt.SigningMethod) func(next http.H
 			ctx := context.WithValue(r.Context(), "user.key", key)
 			ctx = context.WithValue(ctx, "user.method", method)
 
-			userCookie, err := r.Cookie("u")
+			userCookie, err := r.Cookie("user")
 			if err != nil {
 				next.ServeHTTP(w, r.WithContext(ctx))
 				return
