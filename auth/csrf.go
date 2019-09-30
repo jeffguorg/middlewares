@@ -4,6 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
+	"fmt"
 	"github.com/go-errors/errors"
 	"net/http"
 )
@@ -51,8 +52,8 @@ func SecureCookie(key []byte, queryname, cookiename string) func(http.Handler) h
 
 func CheckSecureCookie(csrf string, orig, key []byte) error {
 	sign := digest(key, []byte(orig))
-	if sign == csrf {
-		return nil
+	if sign != csrf {
+		return fmt.Errorf("signature does not match")
 	}
 	return nil
 }
