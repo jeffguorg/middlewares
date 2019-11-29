@@ -7,6 +7,10 @@ import (
 	"net/http"
 )
 
+var (
+	ctxPrefix = "IsylLzqZ"
+)
+
 // RequireParametersInQuery checks for parameters existence in query string
 func RequireParametersInQuery(keys ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -17,7 +21,9 @@ func RequireParametersInQuery(keys ...string) func(http.Handler) http.Handler {
 					w.WriteHeader(http.StatusBadRequest)
 					return
 				}
-				ctx = context.WithValue(ctx, key, r.URL.Query().Get(key))
+			}
+			for k := range r.URL.Query() {
+				ctx = context.WithValue(ctx, ctxPrefix+k, r.URL.Query().Get(k))
 			}
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
@@ -43,14 +49,19 @@ func RequireParametersInJSON(keys ...string) func(http.Handler) http.Handler {
 			}
 
 			for _, key := range keys {
-				if val, ok := values[key]; !ok {
+				if _, ok := values[key]; !ok {
 					w.WriteHeader(http.StatusBadRequest)
 					return
-				} else {
-					ctx = context.WithValue(ctx, key, val)
 				}
+			}
+			for k, v := range values {
+				ctx = context.WithValue(ctx, ctxPrefix+k, v)
 			}
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
+}
+
+func Parameter(r *http.Request, k string) interface{} {
+	return r.Context().Value(ctxPrefix + k)
 }
