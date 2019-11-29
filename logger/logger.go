@@ -12,7 +12,29 @@ var (
 )
 
 func GetLogger(logger *logrus.Logger) func(next http.Handler) http.Handler {
-	return middleware.RequestLogger(NewLogrusFormatter(logger))
+	formatter := NewLogrusFormatter(logger)
+	return func(next http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			entry := formatter.NewLogEntry(r)
+			ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
+
+			t1 := time.Now()
+			defer func() {
+				if r := recover(); r != nil {
+					entry.Panic(r, nil)
+				} else {
+					status := ww.Status()
+					if status == 0 {
+						status = 200
+					}
+					entry.Write(status, ww.BytesWritten(), time.Since(t1))
+				}
+			}()
+
+			next.ServeHTTP(ww, middleware.WithLogEntry(r, entry))
+		}
+		return http.HandlerFunc(fn)
+	}
 }
 
 func NewLogrusFormatter(logger *logrus.Logger) *LogrusFormatter {
