@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	"context"
-	"encoding/json"
+	"github.com/json-iterator/go"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -10,6 +10,7 @@ import (
 
 var (
 	ctxPrefix = "IsylLzqZ"
+	json      = jsoniter.ConfigCompatibleWithStandardLibrary
 )
 
 // RequireParametersInQuery checks for parameters existence in query string
