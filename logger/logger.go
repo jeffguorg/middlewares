@@ -97,7 +97,8 @@ func (l LogrusFormatter) NewLogEntry(r *http.Request) middleware.LogEntry {
 
 	return &LogEntry{
 		flogger: logrus.NewEntry(l.logger).WithFields(logrus.Fields{
-			"URI": url,
+			"uri":    url,
+			"method": r.Method,
 		}),
 	}
 }
