@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
 var (
@@ -64,4 +65,46 @@ func RequireParametersInJSON(keys ...string) func(http.Handler) http.Handler {
 
 func Parameter(r *http.Request, k string) interface{} {
 	return r.Context().Value(ctxPrefix + k)
+}
+
+func ParameterStringWithDefault(r *http.Request, k string, d string) string {
+	if param := r.Context().Value(ctxPrefix + k); param != nil {
+		if v, ok := param.(string); ok {
+			return v
+		}
+		return d
+	}
+	return d
+}
+
+func ParameterIntWithDefault(r *http.Request, k string, d int) int {
+	if param := r.Context().Value(ctxPrefix + k); param != nil {
+		switch v := param.(type) {
+		case int:
+			return int(v)
+		case int8:
+			return int(v)
+		case int16:
+			return int(v)
+		case int32:
+			return int(v)
+		case int64:
+			return int(v)
+		case uint:
+			return int(v)
+		case uint8:
+			return int(v)
+		case uint16:
+			return int(v)
+		case uint32:
+			return int(v)
+		case uint64:
+			return int(v)
+		case string:
+			if n, err := strconv.Atoi(v); err == nil {
+				return n
+			}
+		}
+	}
+	return d
 }
