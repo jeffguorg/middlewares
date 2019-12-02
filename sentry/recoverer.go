@@ -9,7 +9,7 @@ import (
 )
 
 // Recoverer collect
-func Recoverer(dsn, environment, release string) func(handler http.Handler) http.Handler {
+func Recoverer(dsn, environment, release string, debug bool) func(handler http.Handler) http.Handler {
 	hostname, err := os.Hostname()
 	if err != nil {
 		panic(err)
@@ -26,12 +26,21 @@ func Recoverer(dsn, environment, release string) func(handler http.Handler) http
 	hub := sentry.NewHub(cli, sentry.NewScope())
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fw := &FakeResponseWriter{
+				w: w,
+			}
 			defer func() {
 				if r := recover(); r != nil {
 					hub.CaptureException(errors.WithStack(fmt.Errorf("captured panic when handling requests: %+v", r)))
+					w.WriteHeader(http.StatusInternalServerError)
+					if debug {
+						_, _ = w.Write([]byte(fmt.Sprint(r)))
+					}
+				} else {
+					fw.Flush()
 				}
 			}()
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(fw, r)
 		})
 	}
 }
