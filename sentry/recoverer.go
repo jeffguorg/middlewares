@@ -27,7 +27,8 @@ func Recoverer(dsn, environment, release string, debug bool) func(handler http.H
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			fw := &FakeResponseWriter{
-				w: w,
+				status: 200,
+				w:      w,
 			}
 			defer func() {
 				if r := recover(); r != nil {
