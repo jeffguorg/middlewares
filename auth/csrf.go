@@ -25,6 +25,7 @@ func SetSecretCookie(w http.ResponseWriter, cookiename string, content, key []by
 		Name:   cookiename,
 		Value:  digest(key, content),
 		Secure: true,
+		Path:   "/",
 	})
 }
 
