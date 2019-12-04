@@ -48,6 +48,10 @@ func MustUser(next http.Handler) http.Handler {
 	})
 }
 
+func GetKey(r *http.Request) interface{} {
+	return r.Context().Value("user.key")
+}
+
 func GetUser(r *http.Request) map[string]interface{} {
 	v := r.Context().Value("user")
 	if v == nil {
