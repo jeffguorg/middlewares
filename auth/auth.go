@@ -75,31 +75,26 @@ func SetUser(w http.ResponseWriter, r *http.Request, user map[string]interface{}
 		return
 	}
 
-	switch method.(type) {
-	case jwt.SigningMethod:
-		break
-	default:
-		return
-	}
-
-	token := jwt.New(method.(jwt.SigningMethod))
-	for k, v := range map[string]interface{}{
-		"sub": "backend",
-		"iat": float64(time.Now().Unix()),
-		"exp": float64(time.Now().Add(time.Hour).Unix()),
-	} {
-		if _, ok := user[k]; !ok {
-			user[k] = v
+	if signMethod, ok := method.(jwt.SigningMethod); ok {
+		token := jwt.New(signMethod)
+		for k, v := range map[string]interface{}{
+			"sub": "backend",
+			"iat": float64(time.Now().Unix()),
+			"exp": float64(time.Now().Add(time.Hour).Unix()),
+		} {
+			if _, ok := user[k]; !ok {
+				user[k] = v
+			}
 		}
+		token.Claims = jwt.MapClaims(user)
+		str, err := token.SignedString(key)
+		if err != nil {
+			return
+		}
+		http.SetCookie(w, &http.Cookie{
+			Name:  "user",
+			Value: str,
+			Path:  "/",
+		})
 	}
-	token.Claims = jwt.MapClaims(user)
-	str, err := token.SignedString(key)
-	if err != nil {
-		return
-	}
-	http.SetCookie(w, &http.Cookie{
-		Name:  "user",
-		Value: str,
-		Path:  "/",
-	})
 }
