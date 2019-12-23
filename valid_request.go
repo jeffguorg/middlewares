@@ -70,6 +70,36 @@ func RequireParametersInJSON(keys ...string) func(http.Handler) http.Handler {
 	}
 }
 
+// RequireParametersInForm checks if key exists in form
+func RequireParametersInForm(keys ...string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			for _, key := range keys {
+				if v := r.FormValue(key); len(v) == 0 {
+					w.WriteHeader(http.StatusBadRequest)
+					return
+				}
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+// RequireFilesInForm checks if key exists in form
+func RequireFilesInForm(keys ...string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			for _, key := range keys {
+				if _, _, err := r.FormFile(key); err != nil {
+					w.WriteHeader(http.StatusBadRequest)
+					return
+				}
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
 func Parameter(r *http.Request, k string) interface{} {
 	return r.Context().Value(ctxPrefix + k)
 }
