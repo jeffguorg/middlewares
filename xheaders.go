@@ -23,6 +23,7 @@ func guessScheme(r *http.Request) string {
 	return "http"
 }
 
+// ParseProxyHeaders guesses users realip and scheme and such info base on X-* headers
 func ParseProxyHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if len(r.RemoteAddr) == 0 {

@@ -1,3 +1,7 @@
+/*
+Package middlewares contains a set of middlewares to parse and validate headers and parameters.
+*/
+
 package middlewares
 
 import (
@@ -14,6 +18,7 @@ var (
 )
 
 // RequireParametersInQuery checks for parameters existence in query string
+// and store all pairs in context
 func RequireParametersInQuery(keys ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -33,6 +38,7 @@ func RequireParametersInQuery(keys ...string) func(http.Handler) http.Handler {
 }
 
 // RequireParametersInQuery checks for parameters existence in query string
+// and store all pairs in context
 func RequireParametersInJSON(keys ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
