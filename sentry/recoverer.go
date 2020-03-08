@@ -58,3 +58,9 @@ func GetSentryHub(r *http.Request) *sentry.Hub {
 	}
 	return nil
 }
+
+func Report(r *http.Request, err error) {
+	if h := r.Context().Value(SentryHubCtxKey); h != nil {
+		h.(*sentry.Hub).CaptureException(err)
+	}
+}
