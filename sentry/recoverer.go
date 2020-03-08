@@ -1,6 +1,7 @@
 package sentry
 
 import (
+	"context"
 	"fmt"
 	"github.com/getsentry/sentry-go"
 	"github.com/pkg/errors"
@@ -8,7 +9,11 @@ import (
 	"os"
 )
 
-// Recoverer collect
+const (
+	SentryHubCtxKey = "sentry.hub"
+)
+
+// Recoverer collects all the panic and report to sentry.
 func Recoverer(dsn, environment, release string, debug bool) func(handler http.Handler) http.Handler {
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -41,7 +46,15 @@ func Recoverer(dsn, environment, release string, debug bool) func(handler http.H
 					fw.Flush()
 				}
 			}()
-			next.ServeHTTP(fw, r)
+			next.ServeHTTP(fw, r.WithContext(context.WithValue(r.Context(), SentryHubCtxKey, hub)))
 		})
 	}
+}
+
+// GetSentryHub extract sentry hub from http request context
+func GetSentryHub(r *http.Request) *sentry.Hub {
+	if h := r.Context().Value(SentryHubCtxKey); h != nil {
+		return h.(*sentry.Hub)
+	}
+	return nil
 }
