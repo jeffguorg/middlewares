@@ -7,20 +7,24 @@ import (
 	"net/http"
 )
 
-func StoreBodyInContext(key interface{}) func(handler http.Handler) http.Handler {
+const (
+	HttpBodyKey = "httpBodyStore"
+)
+
+func StoreBodyInContext() func(handler http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			body, err := ioutil.ReadAll(r.Body)
 			if err != nil {
 				return
 			}
-			next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), key, body)))
+			next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), HttpBodyKey, body)))
 		})
 	}
 }
 
-func GetBodyContent(request *http.Request, key interface{}) []byte {
-	result := request.Context().Value(key)
+func GetBodyContent(request *http.Request) []byte {
+	result := request.Context().Value(HttpBodyKey)
 	switch resultType := result.(type) {
 	case nil:
 		return nil

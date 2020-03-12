@@ -45,10 +45,15 @@ func RequireParametersInJSON(keys ...string) func(http.Handler) http.Handler {
 			var values map[string]interface{}
 			var ctx = r.Context()
 
-			buf, err := ioutil.ReadAll(r.Body)
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				return
+			buf := GetBodyContent(r)
+
+			if buf == nil {
+				bodyBuf, err := ioutil.ReadAll(r.Body)
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+				buf = bodyBuf
 			}
 
 			if err := json.Unmarshal(buf, &values); err != nil {
