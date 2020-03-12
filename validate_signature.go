@@ -19,6 +19,20 @@ func StoreBodyInContext(key interface{}) func(handler http.Handler) http.Handler
 	}
 }
 
+func GetBodyContent(request *http.Request, key interface{}) []byte {
+	result := request.Context().Value(key)
+	switch resultType := result.(type) {
+	case nil:
+		return nil
+	case string:
+		return []byte(resultType)
+	case []byte:
+		return resultType
+	default:
+		return nil
+	}
+}
+
 func CheckSignature(signingMethod signature.SigningMethod, makeSigningString func(r *http.Request) (string, error), getSignature func(r *http.Request) (string, error)) func(handler http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
