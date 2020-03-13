@@ -34,7 +34,7 @@ func (method SigningMethodHMAC) Sign(signingString string) (string, error) {
 	hasher := hmac.New(method.HashMethod.New, method.Key)
 	hasher.Write([]byte(signingString))
 
-	return base64.URLEncoding.EncodeToString(hasher.Sum(nil)), nil
+	return base64.RawURLEncoding.EncodeToString(hasher.Sum(nil)), nil
 }
 
 var (
