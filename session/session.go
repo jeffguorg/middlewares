@@ -126,8 +126,9 @@ func (mixin Mixin) EnsureSession(next http.Handler) http.Handler {
 
 			// set session id to cookie
 			sessionCookie = &http.Cookie{
+				Name:  mixin.CookieName,
 				Value: tokenStr,
-				Path:  "/",
+				Path:  mixin.CookiePath,
 			}
 			if mixin.SessionDuration != 0 {
 				sessionCookie.Expires = time.Now().Add(mixin.SessionDuration)
