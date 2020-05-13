@@ -1,16 +1,18 @@
 package logger
 
 import (
-	"github.com/go-chi/chi/middleware"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"time"
+
+	"github.com/go-chi/chi/middleware"
+	"github.com/sirupsen/logrus"
 )
 
 var (
 	_ = middleware.RequestLogger(&LogrusFormatter{})
 )
 
+// GetLogger make a http compatible middleware that logs every requests
 func GetLogger(logger *logrus.Logger) func(next http.Handler) http.Handler {
 	formatter := NewLogrusFormatter(logger)
 	return func(next http.Handler) http.Handler {
@@ -27,7 +29,7 @@ func GetLogger(logger *logrus.Logger) func(next http.Handler) http.Handler {
 					if status == 0 {
 						status = 200
 					}
-					entry.Write(status, ww.BytesWritten(), time.Since(t1))
+					entry.Write(status, ww.BytesWritten(), ww.Header(), time.Since(t1), nil)
 				}
 			}()
 
@@ -37,6 +39,7 @@ func GetLogger(logger *logrus.Logger) func(next http.Handler) http.Handler {
 	}
 }
 
+// NewLogrusFormatter return a formatter that write log to specified destination
 func NewLogrusFormatter(logger *logrus.Logger) *LogrusFormatter {
 	if logger == nil {
 		logger = logrus.New()
@@ -54,7 +57,7 @@ type LogEntry struct {
 	flogger logrus.FieldLogger
 }
 
-func (l LogEntry) Write(status, bytes int, elapsed time.Duration) {
+func (l LogEntry) Write(status, bytes int, _ http.Header, elapsed time.Duration, _ interface{}) {
 	l.flogger = l.flogger.WithFields(logrus.Fields{
 		"status":  status,
 		"written": bytes,
@@ -71,8 +74,8 @@ func (l LogEntry) Write(status, bytes int, elapsed time.Duration) {
 	}
 }
 
-func (l LogEntry) Panic(v interface{}, stack []byte) {
-	l.flogger.Error("request failed for: ", string(stack))
+func (l LogEntry) Panic(panic interface{}, stack []byte) {
+	l.flogger.Errorf("panic occurred for '%v' at %v", panic, string(stack))
 }
 
 func guestScheme(r *http.Request) string {
