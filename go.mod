@@ -5,6 +5,7 @@ go 1.14
 require (
 	github.com/Azure/azure-sdk-for-go v42.2.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.10.1 // indirect
+	github.com/Azure/go-autorest/autorest/adal v0.8.3 // indirect
 	github.com/Azure/go-autorest/autorest/to v0.3.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/dnaeon/go-vcr v1.0.1 // indirect
@@ -17,4 +18,5 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.6.0
+	golang.org/x/sys v0.0.0-20200511232937-7e40ca221e25 // indirect
 )
