@@ -102,17 +102,19 @@ func (mixin Mixin) EnsureSession(next http.Handler) http.Handler {
 
 			if err == nil {
 				if claimSessionID, ok := (jwtToken.Claims.(jwt.MapClaims))[mixin.JWTSessionKeyname]; ok {
-					session, err = mixin.client.Load(claimSessionID.(string))
+					sessionID = claimSessionID.(string)
+					session, err = mixin.client.Load(sessionID)
 				}
 			}
 		}
 
 		if err != nil {
 			// no session is found
-			sessionID, _ := uuid.NewRandom()
+			sessionUUID, _ := uuid.NewRandom()
+			sessionID = sessionUUID.String()
 			claims := jwt.MapClaims{
 				"iat":                   time.Now(),
-				mixin.JWTSessionKeyname: sessionID.String(),
+				mixin.JWTSessionKeyname: sessionID,
 			}
 			if mixin.SessionDuration != 0 {
 				claims["exp"] = time.Now().Add(mixin.SessionDuration)
